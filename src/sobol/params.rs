@@ -63,6 +63,7 @@ impl Params {
     Params{ pp: hash }
   }
 
+
   #[allow(dead_code)]
   pub fn print(&self) {
     for (key, value) in self.pp.iter() {
@@ -93,5 +94,16 @@ fn test_keys() {
   pp.insert("alpha", Float(1.0)); pp.insert("beta", Float(1.0));
 
   let lst=pp.keys();
-  assert_eq!(lst, ~[~"alpha", ~"beta"]);
+  assert!((lst==~[&"alpha", &"beta"])||(lst==~[&"beta", &"alpha"]));
+}
+
+#[test]
+fn test_realize() {
+  let mut pp=Params::new();
+  pp.insert("alpha", Float(1.0)); pp.insert("beta", Range(0.0,1.0));
+  let ppr=pp.realize();
+
+  assert_eq!(ppr.len(), 2u);
+  assert_eq!(ppr.get_float("alpha"), 1.0);
+  assert!( (ppr.get_float("beta")>=0.0) && (ppr.get_float("beta")<=1.0));
 }
