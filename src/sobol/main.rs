@@ -122,6 +122,33 @@ fn calc_sobol_2(pr: &Params, sob1 : &HashMap<~str, f64>, nsamp : uint) -> ~[(~st
     Spr
 }
 
+// Total Sobol indices
+fn calc_sobol_total(pr: &Params, nsamp : uint) -> HashMap<~str, f64> {
+    let samples_1=sample(pr, nsamp);
+    let samples_2=sample(pr, nsamp);
+
+    let big_one : ~[Params] = vec::append(samples_1.clone(), samples_2);
+
+    // Average and deviation computaion
+    let resvec=big_one.map(eval_model);
+    let avg=resvec.iter().fold(0.0, |acc, &item| acc+item)/(resvec.len() as f64);
+    let var=resvec.iter().fold(0.0, |acc, &item| acc+item*item)/(resvec.len() as f64)-avg*avg;
+
+    let mut Sp: HashMap<~str, f64> = HashMap::new();
+    for (k,_v) in pr.pp.iter() {
+        let mut sump=0.0f64;
+        for snum in range(0, nsamp) {
+            let mut new_p=samples_1[snum].clone();
+            new_p.set(k.to_owned(),Float(samples_2[snum].get_float(k.slice_from(0))));
+
+            sump=sump+eval_model(&new_p)*eval_model(&samples_1[snum]);
+        }
+        let Up=sump/(nsamp as f64);
+        Sp.insert(k.to_owned(), 1.0-(Up-avg*avg)/var);
+    }
+
+    Sp
+}
 
 //
 // Entry point
@@ -138,16 +165,26 @@ fn main() {
   let var=resvec.iter().fold(0.0, |acc, &item| acc+item*item)/(resvec.len() as f64)-avg*avg;
 
   println!("Mean value = {}, Standard Deviation = {}\n", avg, var);
-  let sob_1=calc_sobol_1(&ranges,15000);
+
   println!("First order Sobol indices");
+  let sob_1=calc_sobol_1(&ranges,15000);
   for (k, v) in sob_1.iter() {
     println!("\t{:s} = {:f}", *k, *v);
   }
-  let sob_2=calc_sobol_2(&ranges, &sob_1, 7500);
+
   println!("\nSecond order Sobol indices");
+  let sob_2=calc_sobol_2(&ranges, &sob_1, 7500);
   for vv in sob_2.iter() {
     let (ref k1,ref k2,v) = *vv;
     println!("\t{:s} x {:s} = {:f}", *k1, *k2, v);
   }
+
+  println!("\nTotal Sobol indices");
+  let sob_t=calc_sobol_total(&ranges, 15000);
+  for (k, v) in sob_t.iter() {
+    println!("\t{:s} = {:f}", *k, *v);
+  }
+
+
 }
 
