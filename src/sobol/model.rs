@@ -19,7 +19,7 @@ pub trait Model {
 impl Model for Gompertz {
   #[allow(dead_code)]
   fn setup(params: &Params) -> Gompertz {
-    Gompertz{ alpha: params.get_float("alpha"), K: params.get_float("K"), C0 : 0.1f64}
+    Gompertz{ alpha: params.get_float("alpha"), K: params.get_float("K"), C0 : params.get_float("C0")}
   }
 
   #[allow(dead_code)]
