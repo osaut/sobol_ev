@@ -78,10 +78,10 @@ impl Params {
     self.pp.len()
   }
 
-  pub fn keys(&self) -> ~[~str] {
-    let mut res : ~[~str]=~[];
+  pub fn keys<'s>(&'s self) -> ~[&'s str] {
+    let mut res : ~[&str]=~[];
     for (key, _) in self.pp.iter() {
-      res.push(key.to_owned());
+      res.push(key.slice_from(0));
     }
     res
   }
