@@ -32,7 +32,7 @@ fn test_sample() {
 #[allow(dead_code)]
 fn eval_model(pr: &Params) -> f64 {
     let model : Gompertz = Model::setup(pr);
-    model.run()
+    model.run(pr.get_float("tmax"))
 }
 
 fn get_couples(n : uint) -> ~[(uint, uint)] {
@@ -70,7 +70,8 @@ fn calc_sobol_1(pr: &Params, nsamp : uint) -> HashMap<~str, f64> {
     let var=resvec.iter().fold(0.0, |acc, &item| acc+item*item)/(resvec.len() as f64)-avg*avg;
 
     let mut Sp: HashMap<~str, f64> = HashMap::new();
-    for (k,_v) in pr.pp.iter() {
+    let vkeys=pr.varying_keys();
+    for k in vkeys.iter() {
         let mut sump=0.0f64;
         for snum in range(0, nsamp) {
             let mut new_p=samples_2[snum].clone();
@@ -90,7 +91,8 @@ fn calc_sobol_1(pr: &Params, nsamp : uint) -> HashMap<~str, f64> {
 fn calc_sobol_2(pr: &Params, sob1 : &HashMap<~str, f64>, nsamp : uint) -> ~[(~str, ~str, f64)] {
     let samples_1=sample(pr, nsamp);
     let samples_2=sample(pr, nsamp);
-    let couples=get_couples(pr.len());
+    let keys=pr.varying_keys();
+    let couples=get_couples(keys.len());
 
     let big_one : ~[Params] = vec::append(samples_1.clone(), samples_2);
 
@@ -100,7 +102,6 @@ fn calc_sobol_2(pr: &Params, sob1 : &HashMap<~str, f64>, nsamp : uint) -> ~[(~st
     let var=resvec.iter().fold(0.0, |acc, &item| acc+item*item)/(resvec.len() as f64)-avg*avg;
 
     let mut Spr : ~[(~str, ~str, f64)]=~[];
-    let keys=pr.keys();
 
     for &cpl in couples.iter() {
         let (i,j) = cpl;
@@ -123,7 +124,7 @@ fn calc_sobol_2(pr: &Params, sob1 : &HashMap<~str, f64>, nsamp : uint) -> ~[(~st
 }
 
 // Total Sobol indices
-fn calc_sobol_total(pr: &Params, nsamp : uint) -> HashMap<~str, f64> {
+fn calc_sobol_total(pr: &Params, nsamp: uint) -> HashMap<~str, f64> {
     let samples_1=sample(pr, nsamp);
     let samples_2=sample(pr, nsamp);
 
@@ -135,7 +136,8 @@ fn calc_sobol_total(pr: &Params, nsamp : uint) -> HashMap<~str, f64> {
     let var=resvec.iter().fold(0.0, |acc, &item| acc+item*item)/(resvec.len() as f64)-avg*avg;
 
     let mut Sp: HashMap<~str, f64> = HashMap::new();
-    for (k,_v) in pr.pp.iter() {
+    let vkeys=pr.varying_keys();
+    for k in vkeys.iter() {
         let mut sump=0.0f64;
         for snum in range(0, nsamp) {
             let mut new_p=samples_1[snum].clone();
@@ -156,7 +158,8 @@ fn calc_sobol_total(pr: &Params, nsamp : uint) -> HashMap<~str, f64> {
 #[allow(dead_code)]
 fn main() {
   let mut ranges=Params::new();
-  ranges.insert("alpha", Range(0.01, 1.0)); ranges.insert("K", Range(0.01, 1.0)); ranges.insert("C0", Range(0.001, 0.01));
+  ranges.insert("alpha", Range(0.01, 1.0)); ranges.insert("K", Range(0.01, 1.0));
+  ranges.insert("C0", Range(0.001, 0.01)); ranges.insert("tmax", Float(10f64));
 
   let samples=sample(&ranges,5000);
   let resvec=samples.map(eval_model);

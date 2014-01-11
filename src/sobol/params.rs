@@ -86,6 +86,17 @@ impl Params {
     }
     res
   }
+
+  pub fn varying_keys<'s>(&'s self) -> ~[&'s str] {
+   let mut res : ~[&str]=~[];
+   for (key, value) in self.pp.iter() {
+      match *value {
+        Float(_) => {},
+        Range(_,_) => { res.push(key.slice_from(0)); }
+      }
+   }
+   res
+  }
 }
 
 #[test]
@@ -95,6 +106,16 @@ fn test_keys() {
 
   let lst=pp.keys();
   assert!((lst==~[&"alpha", &"beta"])||(lst==~[&"beta", &"alpha"]));
+}
+
+#[test]
+fn test_varying_keys() {
+ let mut pp=Params::new();
+ pp.insert("alpha", Range(0.0, 1.0)); pp.insert("beta", Float(1.0));
+
+ let lst=pp.varying_keys();
+ assert_eq!(lst.len(), 1u);
+ assert_eq!(lst, ~[&"alpha"]);
 }
 
 #[test]

@@ -6,7 +6,7 @@ mod params;
 
 pub trait Model {
   fn setup(params: &Params) -> Self;
-  fn run(&self) -> f64;
+  fn run(&self, tmax: f64) -> f64;
 }
 
 
@@ -23,8 +23,7 @@ impl Model for Gompertz {
   }
 
   #[allow(dead_code)]
-  fn run(&self) -> f64 {
-    let tmax=10f64;
+  fn run(&self, tmax: f64) -> f64 {
     let dt=0.001;
     let mut t=0.0;
     let mut C=self.C0;
