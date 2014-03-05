@@ -2,12 +2,15 @@
 #[comment = "Sobol indices evaluator"];
 #[license = "MIT"];
 
-use params::{Params, Value, Float, Range};
+extern crate extra;
+extern crate collections;
+
+use params::{Params, Float, Range};
 use model::{Model,Gompertz};
 use std::vec;
-use std::hashmap::HashMap;
-pub mod model;
-pub mod params;
+mod model;
+mod params;
+mod workers;
 
 fn sample(pr: &Params, num_real : uint) -> ~[Params] {
     let mut samples : ~[Params] = ~[];
@@ -39,7 +42,7 @@ fn get_couples(n : uint) -> ~[(uint, uint)] {
     let mut res : ~[(uint, uint)]=~[];
     for i in range(0, n) {
         for j in range(i, n) {
-            if (i!=j) {
+            if i!=j {
                 res.push( (i,j));
             }
         }
@@ -58,7 +61,7 @@ fn test_get_couples() {
 
 // First order Sobol indices
 #[allow(dead_code)]
-fn calc_sobol_1(pr: &Params, nsamp : uint) -> HashMap<~str, f64> {
+fn calc_sobol_1(pr: &Params, nsamp : uint) -> collections::HashMap<~str, f64> {
     let samples_1=sample(pr, nsamp);
     let samples_2=sample(pr, nsamp);
 
@@ -69,7 +72,7 @@ fn calc_sobol_1(pr: &Params, nsamp : uint) -> HashMap<~str, f64> {
     let avg=resvec.iter().fold(0.0, |acc, &item| acc+item)/(resvec.len() as f64);
     let var=resvec.iter().fold(0.0, |acc, &item| acc+item*item)/(resvec.len() as f64)-avg*avg;
 
-    let mut Sp: HashMap<~str, f64> = HashMap::new();
+    let mut Sp: collections::HashMap<~str, f64> = collections::HashMap::new();
     let vkeys=pr.varying_keys();
     for k in vkeys.iter() {
         let mut sump=0.0f64;
@@ -88,7 +91,7 @@ fn calc_sobol_1(pr: &Params, nsamp : uint) -> HashMap<~str, f64> {
 
 // Second order Sobol indices
 #[allow(dead_code)]
-fn calc_sobol_2(pr: &Params, sob1 : &HashMap<~str, f64>, nsamp : uint) -> ~[(~str, ~str, f64)] {
+fn calc_sobol_2(pr: &Params, sob1 : &collections::HashMap<~str, f64>, nsamp : uint) -> ~[(~str, ~str, f64)] {
     let samples_1=sample(pr, nsamp);
     let samples_2=sample(pr, nsamp);
     let keys=pr.varying_keys();
@@ -124,7 +127,7 @@ fn calc_sobol_2(pr: &Params, sob1 : &HashMap<~str, f64>, nsamp : uint) -> ~[(~st
 }
 
 // Total Sobol indices
-fn calc_sobol_total(pr: &Params, nsamp: uint) -> HashMap<~str, f64> {
+fn calc_sobol_total(pr: &Params, nsamp: uint) -> collections::HashMap<~str, f64> {
     let samples_1=sample(pr, nsamp);
     let samples_2=sample(pr, nsamp);
 
@@ -135,7 +138,7 @@ fn calc_sobol_total(pr: &Params, nsamp: uint) -> HashMap<~str, f64> {
     let avg=resvec.iter().fold(0.0, |acc, &item| acc+item)/(resvec.len() as f64);
     let var=resvec.iter().fold(0.0, |acc, &item| acc+item*item)/(resvec.len() as f64)-avg*avg;
 
-    let mut Sp: HashMap<~str, f64> = HashMap::new();
+    let mut Sp: collections::HashMap<~str, f64> = collections::HashMap::new();
     let vkeys=pr.varying_keys();
     for k in vkeys.iter() {
         let mut sump=0.0f64;

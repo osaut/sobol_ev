@@ -1,22 +1,24 @@
-use std::hashmap::HashMap;
+extern crate collections;
+
+//use collections::HashMap;
 use std::rand;
 
-#[deriving(ToStr,Clone)]
+#[deriving(Clone)]
 pub enum Value {
   Float(f64),
   Range(f64,f64)
 }
 
 // Set of parameters
-#[deriving(ToStr,Clone)]
+#[deriving(Clone)]
 pub struct Params {
-  pp : HashMap<~str, Value>
+  pp : collections::HashMap<~str, Value>
 }
 
 impl Params {
   #[allow(dead_code)]
   pub fn new() -> Params {
-    Params{ pp: HashMap::new() }
+    Params{ pp: collections::HashMap::new() }
   }
 
   #[allow(dead_code)]
@@ -50,7 +52,7 @@ impl Params {
 
   #[allow(dead_code)]
   pub fn realize(&self) -> Params {
-    let mut hash : HashMap<~str, Value> = HashMap::new();
+    let mut hash : collections::HashMap<~str, Value> = collections::HashMap::new();
     for (key, value) in self.pp.iter() {
       match *value {
         Float(f) => { hash.insert(key.to_owned(), Float(f)); },
