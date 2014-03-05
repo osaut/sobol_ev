@@ -4,4 +4,4 @@ before_install:
 install:
   - sudo apt-get install rust-nightly
 script:
-  - rustc --test ./src/sobol/main.rs && ./src/sobol/sobol
+  - rustc --test ./src/sobol/main.rs && ./sobol
