@@ -10,7 +10,6 @@ use model::{Model,Gompertz};
 use std::vec;
 mod model;
 mod params;
-mod workers;
 
 fn sample(pr: &Params, num_real : uint) -> ~[Params] {
     let mut samples : ~[Params] = ~[];
