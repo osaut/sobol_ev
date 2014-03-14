@@ -1,7 +1,7 @@
 extern crate collections;
+extern crate rand;
 
 //use collections::HashMap;
-use std::rand;
 
 #[deriving(Clone)]
 pub enum Value {
