@@ -2,7 +2,6 @@
 #[comment = "Sobol indices evaluator"];
 #[license = "MIT"];
 
-extern crate extra;
 extern crate collections;
 
 use params::{Params, Float, Range};
