@@ -1,6 +1,8 @@
 extern crate collections;
 extern crate rand;
 
+use std::vec::Vec;
+
 //use collections::HashMap;
 
 #[deriving(Clone)]
@@ -81,16 +83,16 @@ impl Params {
     self.pp.len()
   }
 
-  pub fn keys<'s>(&'s self) -> ~[&'s str] {
-    let mut res : ~[&str]=~[];
+  pub fn keys<'s>(&'s self) -> Vec< &'s str > {
+    let mut res : Vec < &str> = Vec::new();
     for (key, _) in self.pp.iter() {
       res.push(key.slice_from(0));
     }
     res
   }
 
-  pub fn varying_keys<'s>(&'s self) -> ~[&'s str] {
-   let mut res : ~[&str]=~[];
+  pub fn varying_keys<'s>(&'s self) -> Vec<&'s str> {
+   let mut res : Vec<&str> = Vec::new();
    for (key, value) in self.pp.iter() {
       match *value {
         Float(_) => {},
@@ -107,7 +109,7 @@ fn test_keys() {
   pp.insert("alpha", Float(1.0)); pp.insert("beta", Float(1.0));
 
   let lst=pp.keys();
-  assert!((lst==~[&"alpha", &"beta"])||(lst==~[&"beta", &"alpha"]));
+  assert!((lst==vec!(&"alpha", &"beta"))||(lst==vec!(&"beta", &"alpha")));
 }
 
 #[test]
@@ -117,7 +119,7 @@ fn test_varying_keys() {
 
  let lst=pp.varying_keys();
  assert_eq!(lst.len(), 1u);
- assert_eq!(lst, ~[&"alpha"]);
+ assert_eq!(lst, vec!(&"alpha"));
 }
 
 #[test]
